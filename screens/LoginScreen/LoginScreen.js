@@ -19,12 +19,26 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepSignedIn, setKeepSignedIn] = useState(true);
+  const [error, setError] = useState({});
+
+  //function
+  const errorDesgin = ()=>{
+    return styles.errorDesign;
+  }
+  const validateForm = () => {
+    const newError = {}; //tạo 1 đối tượng mới để gán vô setError
+    if (!email) newError.email = "Email không được bỏ trống";
+    if (!password) newError.password = "Password không được bỏ trống";
+    setError(newError)
+    return Object.keys(newError).length ===0;
+  };
+  
+  
   const toggleCheckbox = () => {
     setKeepSignedIn(!keepSignedIn);
   };
   const navigation = useNavigation();
 
-  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.container}>
@@ -48,9 +62,9 @@ const LoginScreen = () => {
                 style={[styles.textInput, styles.opacityInput]}
                 placeholder="hello@example.com"
                 value={email}
-                onChangeText={(value )=> setEmail(value)}
-                
+                onChangeText={(value) => setEmail(value)}
               />
+              {error.email?<Text>{error.email}</Text>: null}
             </View>
             <View style={styles.gapInput}>
               <View style={styles.textPassword}>
@@ -65,8 +79,16 @@ const LoginScreen = () => {
                 style={[styles.textInput, styles.opacityInput]}
                 placeholder="***************"
                 value={password}
-                onChangeText={(value)=>{setPassword(value)}}
+                onChangeText={(value) => {
+                  setPassword(value);
+                }}
+                secureTextEntry
               />
+              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
+              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
+              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
+              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
+              {error.password?<Text style={errorDesgin}>{error.password}</Text>: null}
             </View>
           </View>
         </View>
@@ -85,7 +107,7 @@ const LoginScreen = () => {
                 styles.buttonLogin,
                 { backgroundColor: pressed ? "#005BBB" : "#007AFF" },
               ]}
-              onPress={()=>Alert.alert(email)}
+              onPress={() => {validateForm()}}
             >
               <Text style={{ color: "white", textAlign: "center" }}>Login</Text>
             </Pressable>
@@ -97,7 +119,9 @@ const LoginScreen = () => {
                 styles.buttonLogin,
                 { backgroundColor: pressed ? "#CCCCCC" : "#DDDDDD" },
               ]}
-              onPress={()=>{Alert.alert(password)}}
+              onPress={() => {
+                Alert.alert(password);
+              }}
             >
               <Text style={{ color: "white", textAlign: "center" }}>
                 Login with Google
@@ -173,4 +197,8 @@ const styles = StyleSheet.create({
   viewButtonLogin: {
     gap: 20,
   },
+  errorDesign:{
+    backgroundColor: '#FF0000',
+
+  }
 });
