@@ -1,6 +1,7 @@
 import { Checkbox } from "@futurejj/react-native-checkbox";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useRef, useState } from "react";
+
 import {
   Alert,
   Button,
@@ -14,26 +15,33 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepSignedIn, setKeepSignedIn] = useState(true);
   const [error, setError] = useState({});
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
   //function
-  const errorDesgin = ()=>{
-    return styles.errorDesign;
-  }
   const validateForm = () => {
     const newError = {}; //tạo 1 đối tượng mới để gán vô setError
-    if (!email) newError.email = "Email không được bỏ trống";
-    if (!password) newError.password = "Password không được bỏ trống";
-    setError(newError)
-    return Object.keys(newError).length ===0;
+    if (!email) {
+      newError.email = "Email không được bỏ trống";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newError.email = "Email không hợp lệ";
+    }
+    if (!password) {
+      newError.password = "Password không được bỏ trống";
+    } else if (password.length < 6) {
+      newError.password = "Password không được dưới 6 ký tự";
+    }
+    setError(newError);
+    
+    return Object.keys(newError).length === 0;
   };
-  
-  
+
   const toggleCheckbox = () => {
     setKeepSignedIn(!keepSignedIn);
   };
@@ -59,12 +67,22 @@ const LoginScreen = () => {
             <View style={styles.gapInput}>
               <Text style={styles.lableName}>Email</Text>
               <TextInput
-                style={[styles.textInput, styles.opacityInput]}
+                ref={emailRef}
+                style={[styles.textInput, error.email && styles.inputError]}
                 placeholder="hello@example.com"
                 value={email}
                 onChangeText={(value) => setEmail(value)}
+                placeholderTextColor={"#aaa"}
+                autoFocus={()=>error.email}
               />
-              {error.email?<Text>{error.email}</Text>: null}
+              {error.email && (
+                <View style={styles.errorRow}>
+                  <MaterialIcons name="error" size={24} color="red" />
+                  <Text style={{ color: "red", fontSize: 14 }}>
+                    {error.email}
+                  </Text>
+                </View>
+              )}
             </View>
             <View style={styles.gapInput}>
               <View style={styles.textPassword}>
@@ -76,19 +94,24 @@ const LoginScreen = () => {
                 </Pressable>
               </View>
               <TextInput
-                style={[styles.textInput, styles.opacityInput]}
+                style={[styles.textInput, error.password && styles.inputError]}
                 placeholder="***************"
+                placeholderTextColor={"#aaa"}
                 value={password}
                 onChangeText={(value) => {
                   setPassword(value);
                 }}
                 secureTextEntry
               />
-              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
-              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
-              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
-              {/* DANG LAM CAI ERROR DESIGN NHAAAAAAAAAAAAAAAAAAAAAAAAA */}
-              {error.password?<Text style={errorDesgin}>{error.password}</Text>: null}
+
+              {error.password && (
+                <View style={styles.errorRow}>
+                  <MaterialIcons name="error" size={24} color="red" />
+                  <Text style={{ color: "red", fontSize: 14 }}>
+                    {error.password}
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -107,7 +130,10 @@ const LoginScreen = () => {
                 styles.buttonLogin,
                 { backgroundColor: pressed ? "#005BBB" : "#007AFF" },
               ]}
-              onPress={() => {validateForm()}}
+              onPress={() => {
+                if (validateForm()) Alert.alert("ok");
+                else Alert.alert("not");
+              }}
             >
               <Text style={{ color: "white", textAlign: "center" }}>Login</Text>
             </Pressable>
@@ -182,9 +208,7 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 25,
   },
-  opacityInput: {
-    opacity: 0.5,
-  },
+
   keepSignedInGroup: {
     flexDirection: "row",
     alignItems: "center",
@@ -197,8 +221,12 @@ const styles = StyleSheet.create({
   viewButtonLogin: {
     gap: 20,
   },
-  errorDesign:{
-    backgroundColor: '#FF0000',
-
-  }
+  inputError: {
+    borderColor: "red",
+  },
+  errorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
 });
